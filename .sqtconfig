@@ -1,0 +1,11 @@
+sqt_port=13343
+db_host=localhost
+db_port=22
+db_login=root
+db_password=091HP3
+db_name=test
+db_table=test
+cache_host=localhost
+cache_port=22
+cache_login=root
+cache_password=091HP3
