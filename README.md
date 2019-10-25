@@ -12,7 +12,7 @@ configPacker pack
 ```
 При необходимости производится распаковка конфига (.sqt → .sqt_raw): 
 ```bash
-configPacker generate
+configPacker unpack
 ```
  
 ## Модуль второй - server 
