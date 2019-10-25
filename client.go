@@ -24,9 +24,14 @@ func main() {
 	redis.Init()
 
 	args := os.Args[1:]
+	if len(args) < 2 {
+		printClientHelp()
+		os.Exit(1)
+	}
 	key := args[0]
+	addr := args[1]
 
-	addr := "127.0.0.1:13343"
+	addr += ":" + config.Values.ConnPort
 
 	start := time.Now()
 
@@ -125,4 +130,8 @@ func runQueryLocal(key string) (string, error) {
 
 func saveKeyValueToLocal(key string, value string) {
 	redis.SetRedisValue(key, value)
+}
+
+func printClientHelp() {
+	fmt.Println("Execute me in form \"client {key} {host}\".")
 }
