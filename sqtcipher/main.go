@@ -9,10 +9,6 @@ import (
 	"io"
 )
 
-func init() {
-
-}
-
 func createHash(key string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(key))

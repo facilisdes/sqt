@@ -1,5 +1,5 @@
-read_time_init=0
-read_time_step=3000
+read_time_init=300
+read_time_step=1000
 max_stack_size=10
 read_time_growth=sum
 read_time_parameter1=0

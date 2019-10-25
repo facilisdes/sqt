@@ -11,43 +11,43 @@ import (
 func Run(keyToRead string, taskNum int, queueChannel chan message.Message) {
 	if taskNum > config.Values.MaxStackSize {
 		result := message.Message{
-			IsExecuted:    false,
-			Status:        message.STATUS_MAX_QUEUE_EXCEEDED,
-			QueueSize:     taskNum,
-		};
+			IsExecuted: false,
+			Status:     message.STATUS_MAX_QUEUE_EXCEEDED,
+			QueueSize:  taskNum,
+		}
 
-		queueChannel <- result;
-	} 
-	
+		queueChannel <- result
+	}
+
 	start := time.Now()
 	var minTimeToExecute int
 
 	switch config.Values.ReadTimeGrowth {
 	case "sum":
-		minTimeToExecute = config.Values.ReadTimeInit + taskNum * config.Values.ReadTimeStep
+		minTimeToExecute = config.Values.ReadTimeInit + taskNum*config.Values.ReadTimeStep
 
 	case "msum":
-		minTimeToExecute = config.Values.ReadTimeInit + int(math.Round(float64(taskNum) *
-			float64(config.Values.ReadTimeStep) * config.Values.ReadTimeParameter1))
+		minTimeToExecute = config.Values.ReadTimeInit + int(math.Round(float64(taskNum)*
+			float64(config.Values.ReadTimeStep)*config.Values.ReadTimeParameter1))
 
 	case "exp":
 		minTimeToExecute = config.Values.ReadTimeInit +
 			int(math.Pow(float64(config.Values.ReadTimeStep), float64(taskNum)))
 
 	case "log":
-		minTimeToExecute = config.Values.ReadTimeInit + int(float64(config.Values.ReadTimeStep) * math.Log(float64(taskNum + 1)))
+		minTimeToExecute = config.Values.ReadTimeInit + int(float64(config.Values.ReadTimeStep)*math.Log(float64(taskNum+1)))
 
 	default:
 		result := message.Message{
-			IsExecuted:    false,
-			Status:        message.STATUS_WRONG_CONFIG,
-			QueueSize:     taskNum,
-		};
+			IsExecuted: false,
+			Status:     message.STATUS_WRONG_CONFIG,
+			QueueSize:  taskNum,
+		}
 
-		queueChannel <- result;
+		queueChannel <- result
 	}
 
-	readedData, messageStatus := queuetasks.GetData(keyToRead)
+	dataRead, messageStatus := queuetasks.GetData(keyToRead)
 
 	elapsed := int(time.Since(start).Milliseconds())
 
@@ -56,20 +56,17 @@ func Run(keyToRead string, taskNum int, queueChannel chan message.Message) {
 		time.Sleep(time.Duration(timeToSleep) * time.Millisecond)
 	}
 
+	elapsedTotal := int(time.Since(start).Milliseconds())
+
 	result := message.Message{
-		IsExecuted:    true,
-		Status:        messageStatus,
-		Data:          readedData,
-		TimeElapsed:   elapsed,
-		TimeQueuedMin: minTimeToExecute,
-		QueueSize:     taskNum,
+		IsExecuted:       true,
+		Status:           messageStatus,
+		Data:             dataRead,
+		TimeElapsed:      elapsed,
+		TimeQueuedMin:    minTimeToExecute,
+		TimeElapsedTotal: elapsedTotal,
+		QueueSize:        taskNum,
 	}
 
 	queueChannel <- result
-
-}
-
-func task(msToSleep int) {
-	dMsToSleep := time.Duration(msToSleep)
-	time.Sleep(dMsToSleep * time.Millisecond)
 }

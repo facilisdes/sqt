@@ -10,20 +10,24 @@ import (
 )
 
 const (
-	SERVER_CONFIG_PATH = "./.sqtconfig"
-	MAIN_CONFIG_PATH = "./.sqt"
+	SERVER_CONFIG_PATH   = "./.sqtconfig"
+	CLIENT_CONFIG_PATH   = "./.sqtconfig"
+	MAIN_CONFIG_PATH     = "./.sqt"
 	MAIN_CONFIG_RAW_PATH = "./.sqt_raw"
-	MAIN_CONFIG_KEY = "1Q2W3E$r%t^y"
+	MAIN_CONFIG_KEY      = "1Q2W3E$r%t^y"
 )
 
 var (
-	values = make(map[string]string)
-	defaultValues = map[string]string {
-		"sqt_port": "13343",
-		"db_host": "localhost",
-		"db_port": "3306",
-		"cache_host": "localhost",
-		"db_6379": "3306",
+	values        = make(map[string]string)
+	defaultValues = map[string]string{
+		"sqt_port":             "13343",
+		"db_host":              "localhost",
+		"db_port":              "3306",
+		"cache_host":           "localhost",
+		"cache_port":           "6379",
+		"db_password":          "",
+		"db_key_column_name":   "ID",
+		"db_value_column_name": "VALUE",
 	}
 	Values Params
 )
@@ -31,38 +35,39 @@ var (
 type Params struct {
 	ConnType string
 	ConnPort string
-	SqtPort string
-	DbHost string
-	DbPort string
-	DbLogin string
-	DbPassword string
-	DbName string
-	DbTable string
+
+	DbHost            string
+	DbPort            string
+	DbLogin           string
+	DbPassword        string
+	DbName            string
+	DbTable           string
+	DbKeyColumnName   string
+	DbValueColumnName string
+
 	CacheHost string
 	CachePort string
-	CacheLogin string
-	CachePassword string
 
-	ReadTimeInit int
-	ReadTimeStep int
-	MaxStackSize int
-	ReadTimeGrowth string
+	ReadTimeInit       int
+	ReadTimeStep       int
+	MaxStackSize       int
+	ReadTimeGrowth     string
 	ReadTimeParameter1 float64
 	ReadTimeParameter2 float64
 	ReadTimeParameter3 float64
 }
 
-func init() {
-
+func ReadServerConfigs() {
+	readConfigFile(SERVER_CONFIG_PATH)
+	readMainServerConfig()
+	ParseServerConfigValues()
+}
+func ReadClientConfigs() {
+	readConfigFile(CLIENT_CONFIG_PATH)
+	ParseClientConfigValues()
 }
 
-func ReadConfigs() {
-	readServerConfig()
-	readMainConfig()
-	ParseConfigValues();
-}
-
-func ParseConfigValues() {
+func ParseServerConfigValues() {
 	Values.ConnType = "tcp"
 
 	if val, ok := values["sqt_port"]; ok {
@@ -96,8 +101,8 @@ func ParseConfigValues() {
 	if val, ok := values["db_password"]; ok {
 		Values.DbPassword = val
 	} else {
-		fmt.Println("Missed required parameter \"db_password\"!")
-		os.Exit(1)
+		fmt.Println(fmt.Sprintf("Parameter \"db_password\" not passed; using default value (%[1]s) instead", defaultValues["db_password"]))
+		Values.DbPassword = defaultValues["db_password"]
 	}
 
 	if val, ok := values["db_name"]; ok {
@@ -114,6 +119,20 @@ func ParseConfigValues() {
 		os.Exit(1)
 	}
 
+	if val, ok := values["db_key_column_name"]; ok {
+		Values.DbKeyColumnName = val
+	} else {
+		fmt.Println(fmt.Sprintf("Parameter \"db_key_column_name\" not passed; using default value (%[1]s) instead", defaultValues["db_key_column_name"]))
+		Values.DbKeyColumnName = defaultValues["db_key_column_name"]
+	}
+
+	if val, ok := values["db_value_column_name"]; ok {
+		Values.DbValueColumnName = val
+	} else {
+		fmt.Println(fmt.Sprintf("Parameter \"db_value_column_name\" not passed; using default value (%[1]s) instead", defaultValues["db_value_column_name"]))
+		Values.DbValueColumnName = defaultValues["db_value_column_name"]
+	}
+
 	if val, ok := values["cache_host"]; ok {
 		Values.CacheHost = val
 	} else {
@@ -126,20 +145,6 @@ func ParseConfigValues() {
 	} else {
 		fmt.Println(fmt.Sprintf("Parameter \"cache_port\" not passed; using default value (%[1]s) instead", defaultValues["cache_port"]))
 		Values.CachePort = defaultValues["cache_port"]
-	}
-
-	if val, ok := values["cache_login"]; ok {
-		Values.CacheLogin = val
-	} else {
-		fmt.Println("Missed required parameter \"cache_login\"!")
-		os.Exit(1)
-	}
-
-	if val, ok := values["cache_password"]; ok {
-		Values.CachePassword = val
-	} else {
-		fmt.Println("Missed required parameter \"cache_password\"!")
-		os.Exit(1)
 	}
 
 	if val, ok := values["read_time_init"]; ok {
@@ -213,8 +218,89 @@ func ParseConfigValues() {
 	}
 }
 
+func ParseClientConfigValues() {
+	Values.ConnType = "tcp"
+
+	if val, ok := values["sqt_port"]; ok {
+		Values.ConnPort = val
+	} else {
+		fmt.Println(fmt.Sprintf("Parameter \"sqt_port\" not passed; using default value (%[1]s) instead", defaultValues["sqt_port"]))
+		Values.ConnPort = defaultValues["sqt_port"]
+	}
+
+	if val, ok := values["db_host"]; ok {
+		Values.DbHost = val
+	} else {
+		fmt.Println(fmt.Sprintf("Parameter \"db_host\" not passed; using default value (%[1]s) instead", defaultValues["db_host"]))
+		Values.DbHost = defaultValues["db_host"]
+	}
+
+	if val, ok := values["db_port"]; ok {
+		Values.DbPort = val
+	} else {
+		fmt.Println(fmt.Sprintf("Parameter \"db_port\" not passed; using default value (%[1]s) instead", defaultValues["db_port"]))
+		Values.DbPort = defaultValues["db_port"]
+	}
+
+	if val, ok := values["db_login"]; ok {
+		Values.DbLogin = val
+	} else {
+		fmt.Println("Missed required parameter \"db_login\"!")
+		os.Exit(1)
+	}
+
+	if val, ok := values["db_password"]; ok {
+		Values.DbPassword = val
+	} else {
+		fmt.Println(fmt.Sprintf("Parameter \"db_password\" not passed; using default value (%[1]s) instead", defaultValues["db_password"]))
+		Values.DbPassword = defaultValues["db_password"]
+	}
+
+	if val, ok := values["db_name"]; ok {
+		Values.DbName = val
+	} else {
+		fmt.Println("Missed required parameter \"db_name\"!")
+		os.Exit(1)
+	}
+
+	if val, ok := values["db_table"]; ok {
+		Values.DbTable = val
+	} else {
+		fmt.Println("Missed required parameter \"db_table\"!")
+		os.Exit(1)
+	}
+
+	if val, ok := values["db_key_column_name"]; ok {
+		Values.DbKeyColumnName = val
+	} else {
+		fmt.Println(fmt.Sprintf("Parameter \"db_key_column_name\" not passed; using default value (%[1]s) instead", defaultValues["db_key_column_name"]))
+		Values.DbKeyColumnName = defaultValues["db_key_column_name"]
+	}
+
+	if val, ok := values["db_value_column_name"]; ok {
+		Values.DbValueColumnName = val
+	} else {
+		fmt.Println(fmt.Sprintf("Parameter \"db_value_column_name\" not passed; using default value (%[1]s) instead", defaultValues["db_value_column_name"]))
+		Values.DbValueColumnName = defaultValues["db_value_column_name"]
+	}
+
+	if val, ok := values["cache_host"]; ok {
+		Values.CacheHost = val
+	} else {
+		fmt.Println(fmt.Sprintf("Parameter \"cache_host\" not passed; using default value (%[1]s) instead", defaultValues["cache_host"]))
+		Values.CacheHost = defaultValues["cache_host"]
+	}
+
+	if val, ok := values["cache_port"]; ok {
+		Values.CachePort = val
+	} else {
+		fmt.Println(fmt.Sprintf("Parameter \"cache_port\" not passed; using default value (%[1]s) instead", defaultValues["cache_port"]))
+		Values.CachePort = defaultValues["cache_port"]
+	}
+}
+
 func readConfigFromFile(fileContent string) {
-	lines:=strings.Split(fileContent, "\n")
+	lines := strings.Split(fileContent, "\n")
 	for _, line := range lines {
 		if len(line) == 0 {
 			continue
@@ -224,15 +310,15 @@ func readConfigFromFile(fileContent string) {
 	}
 }
 
-func readServerConfig() {
-	if _, err := os.Stat(SERVER_CONFIG_PATH); os.IsNotExist(err) {
+func readConfigFile(filePath string) {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		fmt.Println("Error reading server config:", err.Error())
 		os.Exit(1)
 	}
-	readConfigFromFile(readFile(SERVER_CONFIG_PATH))
+	readConfigFromFile(readFile(filePath))
 }
 
-func readMainConfig() {
+func readMainServerConfig() {
 	if _, err := os.Stat(MAIN_CONFIG_PATH); os.IsNotExist(err) {
 		fmt.Println("Error reading main config:", err.Error())
 		os.Exit(1)
