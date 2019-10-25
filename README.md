@@ -29,3 +29,32 @@ server
 ```bash
 client key 127.0.0.1
 ```
+
+# Сборка проекта
+Устанавливаем go, затем 
+```bash
+go build configPacker
+```
+
+```bash
+go build server
+```
+
+```bash
+go build client
+```
+## Кросс-компиляция
+Go позволяет собирать пакеты под одной OS для другой. 
+Для macOS → Linux:
+```bash
+env GOOS=linux GOARCH=amd64 go build package.go
+```
+Для Linux → Windows:
+```bash
+GOOS=windows GOARCH=amd64 go build package.go
+```
+Для Windows → MacOS:
+```bash
+$Env:GOOS = "darwin"; $Env:GOARCH = "amd64"; go build package.go
+```
+Все значения для GOOS и GOARCH: https://golang.org/doc/install/source#environment 
