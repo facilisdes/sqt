@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"math/rand"
 	"net"
 	"sqt/command"
 	"sqt/config"
@@ -43,6 +44,24 @@ func main() {
 	start := time.Now()
 
 	go runQuery(addr, key, start, hlth)
+
+	runsCount := 1
+
+	for commsCount == 0 || runsCount < commsCount {
+		// if commsCount equals 0 or we haven't runned required amount of commands
+		var waitTime int
+		if sendPeriodFrom == sendPeriodTo {
+			waitTime = sendPeriodFrom
+		} else {
+			rand.Seed(time.Now().UnixNano())
+			waitTime = sendPeriodFrom + rand.Intn(sendPeriodTo-sendPeriodFrom)
+		}
+		time.Sleep(time.Duration(waitTime) * time.Millisecond)
+
+		go runQuery(addr, key, start, hlth)
+		runsCount++
+	}
+
 	go runQuery(addr, key, start, hlth)
 	go runQuery(addr, key, start, hlth)
 
@@ -92,39 +111,43 @@ func runQuery(address string, key string, start time.Time, hlth bool) {
 		return
 	}
 
+	strToPrint := ""
+
 	localVal, err := runQueryLocal(key)
 	if err != nil {
 		if err.Error() == ERROR_KEY_NOT_FOUND_REDIS {
-			fmt.Println(ERROR_KEY_NOT_FOUND_REDIS)
+			strToPrint += ERROR_KEY_NOT_FOUND_REDIS + "\n"
 			if result.Status == message.STATUS_OK_DB || result.Status == message.STATUS_OK_REDIS {
-				fmt.Println("Saving received value to local storage instead")
+				strToPrint += "Saving received value to local storage instead\n"
 				saveKeyValueToLocal(key, result.Data)
 			}
 		} else if err.Error() == ERROR_NO_CONNECTION_REDIS {
-			fmt.Println(ERROR_NO_CONNECTION_REDIS)
-			fmt.Println("Omitting compare part...")
+			strToPrint += ERROR_KEY_NOT_FOUND_REDIS + "\n"
+			strToPrint += "Omitting compare part..." + "\n"
 		} else {
-			fmt.Println("Unhandled error during connection to redis:", err.Error())
-			fmt.Println("Omitting compare part...")
+			strToPrint += "Unhandled error during connection to redis:" + err.Error() + "\n"
+			strToPrint += "Omitting compare part..." + "\n"
 		}
 	} else {
-		fmt.Println("****************")
+		strToPrint += "****************" + "\n"
 		if localVal == result.Data {
-			fmt.Println("Received value (" + result.Data + ") is equal to locally stored value!")
+			strToPrint += "Received value (" + result.Data + ") is equal to locally stored value!" + "\n"
 		} else {
-			fmt.Println("Received value (" + result.Data + ") is not equal to locally stored value (" + localVal + ")!")
+			strToPrint += "Received value (" + result.Data + ") is not equal to locally stored value (" + localVal + ")!" + "\n"
 		}
-		fmt.Println("****************")
+		strToPrint += "****************" + "\n"
 	}
 
 	_ = localVal
 
-	fmt.Println("\nTimestamp: " + strconv.Itoa(int(time.Since(start).Milliseconds())))
-	fmt.Println("Status: " + message.STATUSES_TEXTS[result.Status])
-	fmt.Println("Data: " + result.Data)
-	fmt.Println("Time elapsed on query: " + strconv.Itoa(result.TimeElapsed))
-	fmt.Println("Time elapsed total (query + possible queue): " + strconv.Itoa(result.TimeElapsedTotal))
-	fmt.Println("Queue size at the time when request was received: " + strconv.Itoa(result.QueueSize))
+	strToPrint += "\nTimestamp: " + strconv.Itoa(int(time.Since(start).Milliseconds())) + "\n"
+	strToPrint += "Status: " + message.STATUSES_TEXTS[result.Status] + "\n"
+	strToPrint += "Data: " + result.Data + "\n"
+	strToPrint += "Time elapsed on query: " + strconv.Itoa(result.TimeElapsed) + "\n"
+	strToPrint += "Time elapsed total (query + possible queue): " + strconv.Itoa(result.TimeElapsedTotal) + "\n"
+	strToPrint += "Queue size at the time when request was received: " + strconv.Itoa(result.QueueSize) + "\n"
+
+	fmt.Println(strToPrint)
 }
 
 func runQueryLocal(key string) (string, error) {
