@@ -12,7 +12,7 @@ configPacker pack
 ```
 При необходимости производится распаковка конфига (.sqt → .sqt_raw): 
 ```bash
-configPacker generate
+configPacker unpack
 ```
  
 ## Модуль второй - server 
@@ -45,6 +45,7 @@ go build client
 ```
 ## Кросс-компиляция
 Go позволяет собирать пакеты под одной OS для другой. 
+
 Для macOS → Linux:
 ```bash
 env GOOS=linux GOARCH=amd64 go build package.go
