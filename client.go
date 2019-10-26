@@ -3,9 +3,9 @@ package main
 import (
 	"bufio"
 	"errors"
+	"flag"
 	"fmt"
 	"net"
-	"os"
 	"sqt/command"
 	"sqt/config"
 	"sqt/dataAdapter/redis"
@@ -20,31 +20,44 @@ const (
 )
 
 func main() {
+	var key string
+	flag.StringVar(&key, "key", "42", "key to check")
+	var addr string
+	flag.StringVar(&addr, "host", "127.0.0.1", "host to get key from")
+	var hlth bool
+	flag.BoolVar(&hlth, "hc", false, "should we use healthcheck and execute command immediately? (default - false)")
+	var commsCount int
+	flag.IntVar(&commsCount, "c", 1, "number of requests to be send. 0 for infinite")
+	var sendPeriodFrom int
+	flag.IntVar(&sendPeriodFrom, "pf", 100, "minimal pause between requests")
+	var sendPeriodTo int
+	flag.IntVar(&sendPeriodTo, "pt", 5000, "maximal pause between requests")
+
+	flag.Parse()
+
 	config.ReadClientConfigs()
 	redis.Init()
-
-	args := os.Args[1:]
-	if len(args) < 2 {
-		printClientHelp()
-		os.Exit(1)
-	}
-	key := args[0]
-	addr := args[1]
 
 	addr += ":" + config.Values.ConnPort
 
 	start := time.Now()
 
-	go runQuery(addr, key, start)
-	go runQuery(addr, key, start)
-	go runQuery(addr, key, start)
+	go runQuery(addr, key, start, hlth)
+	go runQuery(addr, key, start, hlth)
+	go runQuery(addr, key, start, hlth)
 
 	time.Sleep(10 * time.Second)
 }
 
-func runQuery(address string, key string, start time.Time) {
+func runQuery(address string, key string, start time.Time, hlth bool) {
+	commType := command.COMMAND_RUN_QUEUE
+
+	if hlth {
+		commType = command.COMMAND_HEALTHCHECK
+	}
+
 	comm := command.Command{
-		Type:       command.COMMAND_RUN_QUEUE,
+		Type:       commType,
 		KeyToCheck: key,
 	}
 	commString, err := command.Serialize(comm)

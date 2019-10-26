@@ -19,10 +19,8 @@ func GetData(key string) (string, int) {
 	} else {
 		if err.Error() == sqt_sql.ERROR_KEY_NOT_FOUND {
 			return "", message.STATUS_ENTRY_NOT_FOUND
-		} else if err.Error() == sqt_sql.ERROR_SQL_NO_CONNECT {
-			return "", message.STATUS_NO_ACTIVE_STORAGE
 		} else {
-			return "", message.STATUS_OTHER_ERROR
+			return "", message.STATUS_NO_ACTIVE_STORAGE
 		}
 	}
 }

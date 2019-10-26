@@ -48,13 +48,11 @@ type Params struct {
 	CacheHost string
 	CachePort string
 
-	ReadTimeInit       int
-	ReadTimeStep       int
-	MaxStackSize       int
-	ReadTimeGrowth     string
-	ReadTimeParameter1 float64
-	ReadTimeParameter2 float64
-	ReadTimeParameter3 float64
+	ReadTimeInit      int
+	ReadTimeStep      int
+	MaxStackSize      int
+	ReadTimeGrowth    string
+	ReadTimeParameter float64
 }
 
 func ReadServerConfigs() {
@@ -190,31 +188,13 @@ func ParseServerConfigValues() {
 		os.Exit(1)
 	}
 
-	if val, ok := values["read_time_parameter1"]; ok {
+	if val, ok := values["read_time_parameter"]; ok {
 		fval, err := strconv.ParseFloat(val, 64)
 		if err != nil {
-			fmt.Println(fmt.Sprintf("Error reading integer parameter \"read_time_parameter1\" (%[1]s) %[2]s", val, err.Error()))
+			fmt.Println(fmt.Sprintf("Error reading integer parameter \"read_time_parameter\" (%[1]s) %[2]s", val, err.Error()))
 			os.Exit(1)
 		}
-		Values.ReadTimeParameter1 = fval
-	}
-
-	if val, ok := values["read_time_parameter2"]; ok {
-		fval, err := strconv.ParseFloat(val, 64)
-		if err != nil {
-			fmt.Println(fmt.Sprintf("Error reading integer parameter \"read_time_parameter2\" (%[1]s) %[2]s", val, err.Error()))
-			os.Exit(1)
-		}
-		Values.ReadTimeParameter2 = fval
-	}
-
-	if val, ok := values["read_time_parameter3"]; ok {
-		fval, err := strconv.ParseFloat(val, 64)
-		if err != nil {
-			fmt.Println(fmt.Sprintf("Error reading integer parameter \"read_time_parameter3\" (%[1]s) %[2]s", val, err.Error()))
-			os.Exit(1)
-		}
-		Values.ReadTimeParameter3 = fval
+		Values.ReadTimeParameter = fval
 	}
 }
 

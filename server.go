@@ -72,15 +72,27 @@ func handleRequest(conn net.Conn) {
 		fmt.Println("Received query for key " + receivedCommand.KeyToCheck)
 
 		queueChannel := make(chan message.Message)
-		go queue.Run(receivedCommand.KeyToCheck, tasksCount, queueChannel)
-		tasksCount++
+
+		commandExecutionMode := queue.MODE_QUEUE
+
+		if receivedCommand.Type == command.COMMAND_HEALTHCHECK {
+			fmt.Println("Healthcheck - query is executing immediately")
+			commandExecutionMode = queue.MODE_HEALTHCHECK
+		} else {
+			tasksCount++
+		}
+		go queue.Run(receivedCommand.KeyToCheck, tasksCount, queueChannel, commandExecutionMode)
 		resultMessage = <-queueChannel
 
 		fmt.Println("Query for key "+receivedCommand.KeyToCheck,
 			"- result status: \""+message.STATUSES_TEXTS[resultMessage.Status]+"\",",
 			"result data: \""+resultMessage.Data+"\"")
 
-		tasksCount--
+		if receivedCommand.Type == command.COMMAND_HEALTHCHECK {
+
+		} else {
+			tasksCount--
+		}
 	}
 
 	valueToReturn, err := message.Serialize(resultMessage)
