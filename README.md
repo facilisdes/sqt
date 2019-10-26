@@ -2,7 +2,7 @@
 ## Модуль первый - configPacker 
 Отвечает за генерацию, сборку и распаковку шифруемого файла конфигурации для сервера. 
  
-Создание [базового конфига](https://github.com/facilisdes/sqt/docs/closed_config.md) (файл .sqt_raw): 
+Создание [базового конфига](https://github.com/facilisdes/sqt/tree/master/docs/closed_config.md) (файл .sqt_raw): 
 ```bash
 configPacker generate
 ```
@@ -17,7 +17,7 @@ configPacker unpack
  
 ## Модуль второй - server 
 Отвечает за получение команд, их обработку и отправку ответа. 
-Использует как [закрытый](https://github.com/facilisdes/sqt/docs/closed_config.md), так и [открытый](https://github.com/facilisdes/sqt/docs/open_config.md) конфиги.
+Использует как [закрытый](https://github.com/facilisdes/sqt/tree/master/docs/closed_config.md), так и [открытый](https://github.com/facilisdes/sqt/tree/master/docs/open_config.md) конфиги.
 Запуск: 
 ```bash
 server
