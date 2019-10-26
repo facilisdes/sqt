@@ -44,7 +44,7 @@ func main() {
 
 func runQuery(address string, key string, start time.Time) {
 	comm := command.Command{
-		Type:       command.COMMAND_HEALTHCHECK,
+		Type:       command.COMMAND_RUN_QUEUE,
 		KeyToCheck: key,
 	}
 	commString, err := command.Serialize(comm)
