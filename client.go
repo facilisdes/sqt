@@ -43,12 +43,17 @@ func main() {
 
 	start := time.Now()
 
-	go runQuery(addr, key, start, hlth)
+	if commsCount == 1 {
+		// if we're running last query we should wait for it to fully execute
+		runQueryRoutine(addr, key, start, hlth)
+	} else {
+		go runQueryRoutine(addr, key, start, hlth)
+	}
 
 	runsCount := 1
 
 	for commsCount == 0 || runsCount < commsCount {
-		// if commsCount equals 0 or we haven't runned required amount of commands
+		// if commsCount equals 0 or we haven't run required amount of commands
 		var waitTime int
 		if sendPeriodFrom == sendPeriodTo {
 			waitTime = sendPeriodFrom
@@ -58,17 +63,17 @@ func main() {
 		}
 		time.Sleep(time.Duration(waitTime) * time.Millisecond)
 
-		go runQuery(addr, key, start, hlth)
+		if runsCount+1 == commsCount {
+			// if we're running last query we should wait for it to fully execute
+			runQueryRoutine(addr, key, start, hlth)
+		} else {
+			go runQueryRoutine(addr, key, start, hlth)
+		}
 		runsCount++
 	}
-
-	go runQuery(addr, key, start, hlth)
-	go runQuery(addr, key, start, hlth)
-
-	time.Sleep(10 * time.Second)
 }
 
-func runQuery(address string, key string, start time.Time, hlth bool) {
+func runQueryRoutine(address string, key string, start time.Time, hlth bool) {
 	commType := command.COMMAND_RUN_QUEUE
 
 	if hlth {
@@ -113,7 +118,7 @@ func runQuery(address string, key string, start time.Time, hlth bool) {
 
 	strToPrint := ""
 
-	localVal, err := runQueryLocal(key)
+	localVal, err := runLocalQuery(key)
 	if err != nil {
 		if err.Error() == ERROR_KEY_NOT_FOUND_REDIS {
 			strToPrint += ERROR_KEY_NOT_FOUND_REDIS + "\n"
@@ -150,7 +155,7 @@ func runQuery(address string, key string, start time.Time, hlth bool) {
 	fmt.Println(strToPrint)
 }
 
-func runQueryLocal(key string) (string, error) {
+func runLocalQuery(key string) (string, error) {
 	value, err := redis.GetRedisValue(key)
 	if err == nil {
 		return value, nil
@@ -166,8 +171,4 @@ func runQueryLocal(key string) (string, error) {
 
 func saveKeyValueToLocal(key string, value string) {
 	redis.SetRedisValue(key, value)
-}
-
-func printClientHelp() {
-	fmt.Println("Execute me in form \"client {key} {host}\".")
 }
