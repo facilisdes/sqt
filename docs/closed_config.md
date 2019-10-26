@@ -17,11 +17,45 @@ read_time_parameter=0
       
 ##Функции роста времени чтения
 Во всех формулах n - количество элементов в очереди на момент поступления запроса.
-| Функция  | Формула                                                                | Описание                                                                                                  |
-|----------|------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| **sum**  | read_time_init + read_time_step * n                                    | Время растёт линейно.                                                                                     |
-| **msum** | *read_time_init + (read_time_step * n * read_time_parameter)*          |  Время растёт линейно. Зависимость от размера очереди регулируется через параметр read_time_parameter     |
-| **exp**  | *read_time_init + read_time_step ^ n)*                                 | Быстрый нелинейный рост.                                                                                  |
-| **mexp** | *read_time_init + read_time_step ^ (n * read_time_parameter)*          | Быстрый нелинейный рост. Зависимость от размера очереди регулируется через параметр read_time_parameter   |
-| **log**  | *read_time_init + read_time_step * log(1 + n)*                         | Медленный нелинейный рост.                                                                                |
-| **mlog** | *read_time_init + read_time_step * log((1 + n) * read_time_parameter)* | Медленный нелинейный рост. Зависимость от размера очереди регулируется через параметр read_time_parameter |
+
+<table>
+      <thead>
+            <tr>
+                  <td>Функция</td>
+                  <td>Формула</td>
+                  <td>Описание</td>
+            </tr>
+      </thead>
+      <tbody>
+            <tr>
+                  <td>**sum**</td>
+                  <td>*read_time_init + read_time_step * n*</td>
+                  <td>Время растёт линейно. </td>
+            </tr>
+            <tr>
+                  <td>**msum**</td>
+                  <td>*read_time_init + (read_time_step * n * read_time_parameter)*</td>
+                  <td>Время растёт линейно. Зависимость от размера очереди регулируется через параметр *read_time_parameter*</td>
+            </tr>
+            <tr>
+                  <td>**exp**</td>
+                  <td>*read_time_init + read_time_step ^ n)*</td>
+                  <td>Быстрый нелинейный рост.</td>
+            </tr>
+            <tr>
+                  <td>**mexp**</td>
+                  <td>*read_time_init + read_time_step ^ (n * read_time_parameter)*</td>
+                  <td>Быстрый нелинейный рост. Зависимость от размера очереди регулируется через параметр *read_time_parameter*</td>
+            </tr>
+            <tr>
+                  <td>*log*</td>
+                  <td>*read_time_init + read_time_step * log(1 + n)*</td>
+                  <td>Медленный нелинейный рост.</td>
+            </tr>
+            <tr>
+                  <td>*mlog*</td>
+                  <td>*read_time_init + read_time_step * log((1 + n) * read_time_parameter)* </td>
+                  <td>Медленный нелинейный рост. Зависимость от размера очереди регулируется через параметр *read_time_parameter*</td>
+            </tr>
+      </tbody>
+</table>
