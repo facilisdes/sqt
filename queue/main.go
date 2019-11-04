@@ -14,7 +14,7 @@ const (
 	MODE_HEALTHCHECK = 1
 )
 
-func Run(keyToRead string, taskNum int, queueChannel chan message.Message, mode int) {
+func Run(keyToRead string, taskNum int, mode int, queueChannel chan message.Message) {
 	if taskNum > config.Values.MaxStackSize {
 		// refuse to execute command and return immediately if max queue size is exceeded
 		result := message.Message{

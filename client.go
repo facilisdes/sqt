@@ -35,45 +35,50 @@ func main() {
 	flag.IntVar(&sendPeriodTo, "pt", 5000, "maximal pause between requests")
 
 	flag.Parse()
+	if commsCount < 0 {
+		fmt.Println("Wrong requests count - must be 0 for infinite or 1+ !")
+		return
+	}
 
 	config.ReadClientConfigs()
 	redis.Init()
 
 	addr += ":" + config.Values.ConnPort
 
-	start := time.Now()
+	runQueries(commsCount, key, sendPeriodFrom, sendPeriodTo, addr, hlth)
+}
 
-	if commsCount == 1 {
-		// if we're running last query we should wait for it to fully execute
-		runQueryRoutine(addr, key, start, hlth)
-	} else {
-		go runQueryRoutine(addr, key, start, hlth)
+func runQueries(count int, key string, sendPeriodFrom int, sendPeriodTo int, address string, healthMode bool) {
+	start := time.Now()
+	runsCount := 0
+	chans := make(chan bool)
+	if count != 0 {
+		chans = make(chan bool, count)
 	}
 
-	runsCount := 1
-
-	for commsCount == 0 || runsCount < commsCount {
-		// if commsCount equals 0 or we haven't run required amount of commands
-		var waitTime int
-		if sendPeriodFrom == sendPeriodTo {
-			waitTime = sendPeriodFrom
-		} else {
-			rand.Seed(time.Now().UnixNano())
-			waitTime = sendPeriodFrom + rand.Intn(sendPeriodTo-sendPeriodFrom)
+	for count == 0 || runsCount < count {
+		if healthMode == false {
+			// if commsCount equals 0 or we haven't run required amount of commands
+			var waitTime int
+			if sendPeriodFrom == sendPeriodTo {
+				waitTime = sendPeriodFrom
+			} else {
+				rand.Seed(time.Now().UnixNano())
+				waitTime = sendPeriodFrom + rand.Intn(sendPeriodTo-sendPeriodFrom)
+			}
+			time.Sleep(time.Duration(waitTime) * time.Millisecond)
 		}
-		time.Sleep(time.Duration(waitTime) * time.Millisecond)
 
-		if runsCount+1 == commsCount {
-			// if we're running last query we should wait for it to fully execute
-			runQueryRoutine(addr, key, start, hlth)
-		} else {
-			go runQueryRoutine(addr, key, start, hlth)
-		}
+		go runQueryRoutine(address, key, start, healthMode, chans)
 		runsCount++
+	}
+
+	for i := 0; i < count; i++ {
+		_ = <-chans
 	}
 }
 
-func runQueryRoutine(address string, key string, start time.Time, hlth bool) {
+func runQueryRoutine(address string, key string, start time.Time, hlth bool, queueChannel chan bool) {
 	commType := command.COMMAND_RUN_QUEUE
 
 	if hlth {
@@ -89,34 +94,43 @@ func runQueryRoutine(address string, key string, start time.Time, hlth bool) {
 	_ = commTest
 	if err != nil {
 		fmt.Println("Error serializing command for "+address+":", err.Error())
+		queueChannel <- true
 		return
 	}
 
 	conn, err := net.Dial("tcp", address)
 	if err != nil {
 		fmt.Println("Error connecting client at "+address+":", err.Error())
+		queueChannel <- true
 		return
 	}
 
 	_, err = fmt.Fprintf(conn, commString)
 	if err != nil {
 		fmt.Println("Error sending command to client at "+address+":", err.Error())
+		queueChannel <- true
 		return
 	}
 
 	response, err := bufio.NewReader(conn).ReadString('\n')
 	if err != nil && err.Error() != "EOF" {
 		fmt.Println("Error reading response from client at "+address+":", err.Error())
+		queueChannel <- true
 		return
 	}
 
 	result, err := message.Deserialize(response)
 	if err != nil {
 		fmt.Println("Error during deserializing response from "+address+":", err.Error())
+		queueChannel <- true
 		return
 	}
 
 	strToPrint := ""
+
+	strToPrint += "\nTimestamp: " + strconv.Itoa(int(time.Since(start).Milliseconds())) + "\n"
+	strToPrint += "Status: " + message.STATUSES_TEXTS[result.Status] + "\n"
+	strToPrint += "Data: " + result.Data + "\n"
 
 	localVal, err := runLocalQuery(key)
 	if err != nil {
@@ -134,25 +148,21 @@ func runQueryRoutine(address string, key string, start time.Time, hlth bool) {
 			strToPrint += "Omitting compare part..." + "\n"
 		}
 	} else {
-		strToPrint += "****************" + "\n"
 		if localVal == result.Data {
 			strToPrint += "Received value (" + result.Data + ") is equal to locally stored value!" + "\n"
 		} else {
 			strToPrint += "Received value (" + result.Data + ") is not equal to locally stored value (" + localVal + ")!" + "\n"
 		}
-		strToPrint += "****************" + "\n"
 	}
-
 	_ = localVal
 
-	strToPrint += "\nTimestamp: " + strconv.Itoa(int(time.Since(start).Milliseconds())) + "\n"
-	strToPrint += "Status: " + message.STATUSES_TEXTS[result.Status] + "\n"
-	strToPrint += "Data: " + result.Data + "\n"
 	strToPrint += "Time elapsed on query: " + strconv.Itoa(result.TimeElapsed) + "\n"
 	strToPrint += "Time elapsed total (query + possible queue): " + strconv.Itoa(result.TimeElapsedTotal) + "\n"
-	strToPrint += "Queue size at the time when request was received: " + strconv.Itoa(result.QueueSize) + "\n"
+	strToPrint += "Queue size after request was received: " + strconv.Itoa(result.QueueSize) + "\n"
 
 	fmt.Println(strToPrint)
+
+	queueChannel <- true
 }
 
 func runLocalQuery(key string) (string, error) {

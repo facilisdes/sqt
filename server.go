@@ -81,7 +81,7 @@ func handleRequest(conn net.Conn) {
 		} else {
 			tasksCount++
 		}
-		go queue.Run(receivedCommand.KeyToCheck, tasksCount, queueChannel, commandExecutionMode)
+		go queue.Run(receivedCommand.KeyToCheck, tasksCount, commandExecutionMode, queueChannel)
 		resultMessage = <-queueChannel
 
 		fmt.Println("Query for key "+receivedCommand.KeyToCheck,
