@@ -15,6 +15,9 @@ const (
 	MAIN_CONFIG_PATH     = "./.sqt"
 	MAIN_CONFIG_RAW_PATH = "./.sqt_raw"
 	MAIN_CONFIG_KEY      = "1Q2W3E$r%t^y"
+
+	MYSQL_SERVICE_DB   = "sqt"
+	MYSQL_EVENTS_TABLE = "events"
 )
 
 var (

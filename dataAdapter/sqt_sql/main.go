@@ -5,6 +5,7 @@ import (
 	"errors"
 	_ "github.com/go-sql-driver/mysql"
 	"sqt/config"
+	"sqt/message"
 )
 
 const (
@@ -16,7 +17,24 @@ func OpenConnection() (*sql.DB, error) {
 	var db *sql.DB
 	var err error
 	db, err = sql.Open("mysql", config.Values.DbLogin+":"+config.Values.DbPassword+"@tcp("+config.Values.DbHost+":"+
-		config.Values.DbPort+")/"+config.Values.DbTable)
+		config.Values.DbPort+")/"+config.Values.DbName)
+
+	if err != nil {
+		return db, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return db, err
+	}
+	return db, nil
+}
+
+func OpenConnectionToDB(database string) (*sql.DB, error) {
+	var db *sql.DB
+	var err error
+	db, err = sql.Open("mysql", config.Values.DbLogin+":"+config.Values.DbPassword+"@tcp("+config.Values.DbHost+":"+
+		config.Values.DbPort+")/"+database)
 
 	if err != nil {
 		return db, err
@@ -66,4 +84,34 @@ func GetSqlValue(key string) (string, error) {
 		return "", errors.New(ERROR_KEY_NOT_FOUND)
 	}
 	return value, nil
+}
+func SaveEventData(msg message.Message) (int, error) {
+	db, err := OpenConnectionToDB(config.MYSQL_SERVICE_DB)
+	if err != nil {
+		return -1, err
+	}
+
+	defer CloseConnection(db)
+
+	if db == nil {
+		return -1, errors.New(ERROR_SQL_NO_CONNECT)
+	}
+
+	stmt, err := db.Prepare("INSERT " + config.MYSQL_EVENTS_TABLE + " SET IsExecuted=?,Status=?,StatusText=?," +
+		"Data=?,TimeElapsed=?,TimeQueuedMin=?,TimeElapsedTotal=?,QueueSize=?")
+	if err != nil {
+		return -1, err
+	}
+
+	res, err := stmt.Exec(msg.IsExecuted, msg.Status, message.STATUSES_TEXTS[msg.Status], msg.Data, msg.TimeElapsed,
+		msg.TimeQueuedMin, msg.TimeElapsedTotal, msg.QueueSize)
+	if err != nil {
+		return -1, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return -1, err
+	}
+
+	return int(id), nil
 }

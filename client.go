@@ -10,6 +10,7 @@ import (
 	"sqt/command"
 	"sqt/config"
 	"sqt/dataAdapter/redis"
+	"sqt/dataAdapter/sqt_sql"
 	"sqt/message"
 	"strconv"
 	"time"
@@ -160,6 +161,13 @@ func runQueryRoutine(address string, key string, start time.Time, hlth bool, que
 	strToPrint += "Time elapsed total (query + possible queue): " + strconv.Itoa(result.TimeElapsedTotal) + "\n"
 	strToPrint += "Queue size after request was received: " + strconv.Itoa(result.QueueSize) + "\n"
 
+	i, err := sqt_sql.SaveEventData(result)
+	if err != nil {
+		strToPrint += "Error during saving data to a local storage:" + err.Error()
+		return
+	} else {
+		strToPrint += "Data saved to local storage! ID=" + strconv.Itoa(i)
+	}
 	fmt.Println(strToPrint)
 
 	queueChannel <- true
