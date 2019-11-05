@@ -60,6 +60,8 @@ func handleRequest(conn net.Conn) {
 		resultMessage = message.Message{
 			IsExecuted: false,
 			Status:     message.STATUS_WRONG_COMMAND_TYPE,
+			Command:    receivedCommand.Type,
+			Key:        receivedCommand.KeyToCheck,
 		}
 	} else if len(receivedCommand.KeyToCheck) == 0 {
 		fmt.Println(message.STATUSES_TEXTS[message.STATUS_WRONG_COMMAND_KEY])
@@ -67,6 +69,8 @@ func handleRequest(conn net.Conn) {
 		resultMessage = message.Message{
 			IsExecuted: false,
 			Status:     message.STATUS_WRONG_COMMAND_KEY,
+			Command:    receivedCommand.Type,
+			Key:        receivedCommand.KeyToCheck,
 		}
 	} else {
 		fmt.Println("Received query for key " + receivedCommand.KeyToCheck)

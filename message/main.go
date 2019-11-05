@@ -35,6 +35,8 @@ var (
 type Message struct {
 	IsExecuted       bool
 	Status           int
+	Command          int
+	Key              string
 	Data             string
 	TimeElapsed      int
 	TimeQueuedMin    int

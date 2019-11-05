@@ -155,16 +155,14 @@ func runQueryRoutine(address string, key string, start time.Time, hlth bool, que
 			strToPrint += "Received value (" + result.Data + ") is not equal to locally stored value (" + localVal + ")!" + "\n"
 		}
 	}
-	_ = localVal
 
 	strToPrint += "Time elapsed on query: " + strconv.Itoa(result.TimeElapsed) + "\n"
 	strToPrint += "Time elapsed total (query + possible queue): " + strconv.Itoa(result.TimeElapsedTotal) + "\n"
 	strToPrint += "Queue size after request was received: " + strconv.Itoa(result.QueueSize) + "\n"
 
-	i, err := sqt_sql.SaveEventData(result)
+	i, err := sqt_sql.SaveEventData(result, localVal)
 	if err != nil {
 		strToPrint += "Error during saving data to a local storage:" + err.Error()
-		return
 	} else {
 		strToPrint += "Data saved to local storage! ID=" + strconv.Itoa(i)
 	}

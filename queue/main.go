@@ -21,6 +21,8 @@ func Run(keyToRead string, taskNum int, mode int, queueChannel chan message.Mess
 			IsExecuted: false,
 			Status:     message.STATUS_MAX_QUEUE_EXCEEDED,
 			QueueSize:  taskNum,
+			Command:    mode,
+			Key:        keyToRead,
 		}
 
 		queueChannel <- result
@@ -39,6 +41,8 @@ func Run(keyToRead string, taskNum int, mode int, queueChannel chan message.Mess
 				IsExecuted: false,
 				Status:     message.STATUS_WRONG_CONFIG,
 				QueueSize:  taskNum,
+				Command:    mode,
+				Key:        keyToRead,
 			}
 			queueChannel <- result
 		}
@@ -49,6 +53,8 @@ func Run(keyToRead string, taskNum int, mode int, queueChannel chan message.Mess
 			IsExecuted: false,
 			Status:     message.STATUS_WRONG_COMMAND_TYPE,
 			QueueSize:  taskNum,
+			Command:    mode,
+			Key:        keyToRead,
 		}
 		queueChannel <- result
 	}
@@ -72,6 +78,8 @@ func Run(keyToRead string, taskNum int, mode int, queueChannel chan message.Mess
 		TimeQueuedMin:    minTimeToExecute,
 		TimeElapsedTotal: elapsedTotal,
 		QueueSize:        taskNum,
+		Command:          mode,
+		Key:              keyToRead,
 	}
 
 	queueChannel <- result
