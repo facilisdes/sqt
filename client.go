@@ -160,7 +160,7 @@ func runQueryRoutine(address string, key string, start time.Time, hlth bool, que
 	strToPrint += "Time elapsed total (query + possible queue): " + strconv.Itoa(result.TimeElapsedTotal) + "\n"
 	strToPrint += "Queue size after request was received: " + strconv.Itoa(result.QueueSize) + "\n"
 
-	i, err := sqt_sql.SaveEventData(result, localVal)
+	i, err := sqt_sql.SaveEventData(result, address, localVal)
 	if err != nil {
 		strToPrint += "Error during saving data to a local storage:" + err.Error()
 	} else {

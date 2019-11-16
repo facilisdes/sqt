@@ -85,7 +85,7 @@ func GetSqlValue(key string) (string, error) {
 	}
 	return value, nil
 }
-func SaveEventData(msg message.Message, localValue string) (int, error) {
+func SaveEventData(msg message.Message, client string, localValue string) (int, error) {
 	db, err := OpenConnectionToDB(config.MYSQL_SERVICE_DB)
 	if err != nil {
 		return -1, err
@@ -100,13 +100,14 @@ func SaveEventData(msg message.Message, localValue string) (int, error) {
 	ValueIsValidated := len(localValue) > 0 && msg.Data == localValue
 
 	stmt, err := db.Prepare("INSERT " + config.MYSQL_EVENTS_TABLE + " SET IsExecuted=?,Status=?,StatusText=?," +
-		"Data=?,LocalData=?,ValueIsValidated=?,TimeElapsed=?,TimeQueuedMin=?,TimeElapsedTotal=?,QueueSize=?,Command=?,RequestedKey=?")
+		"Data=?,LocalData=?,ValueIsValidated=?,TimeElapsed=?,TimeQueuedMin=?,TimeElapsedTotal=?,QueueSize=?,Command=?," +
+		"RequestedKey=?,Client=?,TimeStart=?,TimeEnd=?")
 	if err != nil {
 		return -1, err
 	}
 
 	res, err := stmt.Exec(msg.IsExecuted, msg.Status, message.STATUSES_TEXTS[msg.Status], msg.Data, localValue, ValueIsValidated, msg.TimeElapsed,
-		msg.TimeQueuedMin, msg.TimeElapsedTotal, msg.QueueSize, msg.Command, msg.Key)
+		msg.TimeQueuedMin, msg.TimeElapsedTotal, msg.QueueSize, msg.Command, msg.Key, client, msg.TimeStart, msg.TimeEnd)
 	if err != nil {
 		return -1, err
 	}

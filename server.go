@@ -9,6 +9,7 @@ import (
 	"sqt/dataAdapter/redis"
 	"sqt/message"
 	"sqt/queue"
+	"time"
 )
 
 var tasksCount = 0
@@ -38,6 +39,8 @@ func main() {
 func handleRequest(conn net.Conn) {
 	defer conn.Close()
 
+	unixTimeStart := int(time.Now().Unix())
+
 	buf := make([]byte, 1024)
 	reqLen, err := conn.Read(buf)
 	if err != nil {
@@ -57,8 +60,11 @@ func handleRequest(conn net.Conn) {
 	if receivedCommand.Type != command.COMMAND_RUN_QUEUE && receivedCommand.Type != command.COMMAND_HEALTHCHECK {
 		fmt.Println(message.STATUSES_TEXTS[message.STATUS_WRONG_COMMAND_TYPE])
 
+		unixTimeEnd := int(time.Now().Unix())
 		resultMessage = message.Message{
 			IsExecuted: false,
+			TimeStart:  unixTimeStart,
+			TimeEnd:    unixTimeEnd,
 			Status:     message.STATUS_WRONG_COMMAND_TYPE,
 			Command:    receivedCommand.Type,
 			Key:        receivedCommand.KeyToCheck,
@@ -66,8 +72,11 @@ func handleRequest(conn net.Conn) {
 	} else if len(receivedCommand.KeyToCheck) == 0 {
 		fmt.Println(message.STATUSES_TEXTS[message.STATUS_WRONG_COMMAND_KEY])
 
+		unixTimeEnd := int(time.Now().Unix())
 		resultMessage = message.Message{
 			IsExecuted: false,
+			TimeStart:  unixTimeStart,
+			TimeEnd:    unixTimeEnd,
 			Status:     message.STATUS_WRONG_COMMAND_KEY,
 			Command:    receivedCommand.Type,
 			Key:        receivedCommand.KeyToCheck,
@@ -87,6 +96,10 @@ func handleRequest(conn net.Conn) {
 		}
 		go queue.Run(receivedCommand.KeyToCheck, tasksCount, commandExecutionMode, queueChannel)
 		resultMessage = <-queueChannel
+
+		unixTimeEnd := int(time.Now().Unix())
+		resultMessage.TimeStart = unixTimeStart
+		resultMessage.TimeEnd = unixTimeEnd
 
 		fmt.Println("Query for key "+receivedCommand.KeyToCheck,
 			"- result status: \""+message.STATUSES_TEXTS[resultMessage.Status]+"\",",

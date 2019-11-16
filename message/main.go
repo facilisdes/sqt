@@ -38,6 +38,8 @@ type Message struct {
 	Command          int
 	Key              string
 	Data             string
+	TimeStart        int
+	TimeEnd          int
 	TimeElapsed      int
 	TimeQueuedMin    int
 	TimeElapsedTotal int
