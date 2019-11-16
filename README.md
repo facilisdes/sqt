@@ -42,7 +42,11 @@ client -key=key -host=127.0.0.1 -pf=500 -pt=3000
 ```bash
 client -h
 ```
-
+# Dashboard  
+За него отвечает файл sqt.php. Можно переименовать, расположить в любом месте. Данные для конекта к БД прописываются в первых строчках самого файла. Для быстрого запуска с локальным доступом команда
+```bash
+php -S localhost:8000
+```
 
 # Сборка проекта
 Устанавливаем go, затем 
@@ -73,3 +77,4 @@ GOOS=windows GOARCH=amd64 go build package.go
 $Env:GOOS = "darwin"; $Env:GOARCH = "amd64"; go build package.go
 ```
 Все значения для GOOS и GOARCH: https://golang.org/doc/install/source#environment 
+
