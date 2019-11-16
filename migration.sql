@@ -1,6 +1,6 @@
-CREATE USER 'user'@'%' IDENTIFIED BY 'password';
+CREATE USER 'sqt_admin_1234'@'%' IDENTIFIED BY 'P@ssw0rd-12POss@*';
 CREATE DATABASE sqt;
-GRANT INSERT, SELECT, DELETE, UPDATE ON sqt.* TO 'user'@'%';
+GRANT INSERT, SELECT, DELETE, UPDATE ON sqt.* TO 'sqt_admin_1234'@'%';
 USE sqt;
 CREATE TABLE `clients` (
                            `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

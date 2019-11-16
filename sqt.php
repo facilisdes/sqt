@@ -1,7 +1,7 @@
 <?php
 const DB_HOST = '127.0.0.1:3307';      /* Хост, к которому мы подключаемся */
-const DB_USER = 'root';           /* Имя пользователя */
-const DB_PASSWORD = 'root';   /* Используемый пароль */
+const DB_USER = 'sqt_admin_1234';           /* Имя пользователя */
+const DB_PASSWORD = 'P@ssw0rd-12POss@*';   /* Используемый пароль */
 const DB_DATABASE = 'sqt';      /* База данных для запросов по умолчанию */
 const DB_EVENTS_TABLE = 'events';      /* База данных для запросов по умолчанию */
 const DB_USERS_TABLE = 'clients';      /* База данных для запросов по умолчанию */
