@@ -53,7 +53,8 @@ else {
             <td><?php echo $_SESSION['user_client']; ?></td>
         </tr>
     </table>
-    <?php if($_REQUEST['mode'] == 'list'):?>
+    <?php switch($_REQUEST['mode']) {?>
+<?php case 'list':?>
     <?php
         $arRows = [];
         $arRowsStatuses = [];
@@ -185,8 +186,7 @@ else {
         <?endforeach;?>
     </table>
     <br>
-
-    <?php elseif($_REQUEST['mode'] == 'list_select'):?>
+<?php case 'list_select':?>
         <?php closeForNonAdmin();?>
         <?php
         $arRows = [];
@@ -351,8 +351,7 @@ else {
         </table>
         <br>
 
-
-    <?php elseif($_REQUEST['mode'] == 'auth'):?>
+<?php case 'auth':?>
     <?php
         $showForm = false;
         $note = false;
@@ -415,8 +414,9 @@ else {
         <?php if(!empty($_SESSION['user_id'])):?>
             <script>window.location.replace("/sqt.php");</script>
         <?endif;?>
-    <?php elseif($_REQUEST['mode'] == 'all'):?>
-        <?php closeForNonAdmin();?>
+
+<?php case 'all':?>
+    <?php closeForNonAdmin();?>
     <?php
         $client = urldecode($_REQUEST['filter_client']);
 
@@ -545,7 +545,8 @@ else {
             </tbody>
         </table>
     </div>
-    <?php elseif($_REQUEST['mode'] == 'clients'):?>
+
+<?php case 'clients':?>
         <?php closeForNonAdmin();?>
     <?php
         $arRows = [];
@@ -584,7 +585,8 @@ else {
         </tr>
         <?php endforeach;?>
     </table>
-    <?php elseif($_REQUEST['mode'] == 'client_add'):?>
+
+<?php case 'client_add':?>
         <?php if(empty($_POST['address']) || empty($_POST['note'])):?>
         <form method="post">
             <input type="hidden" name="mode" value="client_add">
@@ -627,7 +629,7 @@ else {
             mysqli_close($link);
         ?>
         <?php endif;?>
-    <?php endif;?>
+<?php }?>
     </body>
     </html>
 
