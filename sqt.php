@@ -55,7 +55,7 @@ else {
     </table>
     <?php switch($_REQUEST['mode']) {?>
 <?php case 'list':?>
-    <?php
+        <?php
         $arRows = [];
         $arRowsStatuses = [];
         $successCount = 0;
@@ -105,9 +105,9 @@ else {
             if ($result = mysqli_query($link, $query)) {
                 while ($row = mysqli_fetch_assoc($result)) {
                     $arRowsStatuses[] = [
-                            'status' => $row['st'],
-                            'count' => $row['ct'],
-                        ];
+                        'status' => $row['st'],
+                        'count' => $row['ct'],
+                    ];
                 }
                 mysqli_free_result($result);
             }
@@ -115,78 +115,79 @@ else {
 
             mysqli_close($link);
         }
-    ?>
-    <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
-        <tr>
-            <td colspan="2">Данные по успешным запросам</td>
-        </tr>
-        <tr>
-            <td>
-                Среднее время запросов без учёта очереди, мс
-            </td>
-            <td>
-                Среднее время запросов с очередью, мс
-            </td>
-        </tr>
-        <?php foreach($arRows as $arRow):?>
-        <tr>
-            <td>
-                <?php echo $arRow['te'] ?>
-            </td>
-            <td>
-                <?php echo $arRow['tet'] ?>
-            </td>
-        </tr>
-        <?endforeach;?>
-    </table>
-    <br>
-    <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
-        <tr>
-            <td colspan="2">Данные по результативности запросов</td>
-        </tr>
-        <tr>
-            <td>
-                Успешно
-            </td>
-            <td>
-                Неудачно
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <?php echo $successCount ?>
-            </td>
-            <td>
-                <?php echo $failureCount ?>
-            </td>
-        </tr>
-    </table>
-    <br>
-    <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
-        <tr>
-            <td colspan="2">Данные по статусам</td>
-        </tr>
-        <tr>
-            <td>
-                Статус
-            </td>
-            <td>
-                Количество запросов
-            </td>
-        </tr>
-        <?php foreach($arRowsStatuses as $arRow):?>
+        ?>
+        <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+            <tr>
+                <td colspan="2">Данные по успешным запросам</td>
+            </tr>
             <tr>
                 <td>
-                    <?php echo $arRow['status'] ?>
+                    Среднее время запросов без учёта очереди, мс
                 </td>
                 <td>
-                    <?php echo $arRow['count'] ?>
+                    Среднее время запросов с очередью, мс
                 </td>
             </tr>
-        <?endforeach;?>
-    </table>
-    <br>
-<?php case 'list_select':?>
+            <?php foreach($arRows as $arRow):?>
+                <tr>
+                    <td>
+                        <?php echo $arRow['te'] ?>
+                    </td>
+                    <td>
+                        <?php echo $arRow['tet'] ?>
+                    </td>
+                </tr>
+            <?endforeach;?>
+        </table>
+        <br>
+        <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+            <tr>
+                <td colspan="2">Данные по результативности запросов</td>
+            </tr>
+            <tr>
+                <td>
+                    Успешно
+                </td>
+                <td>
+                    Неудачно
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <?php echo $successCount ?>
+                </td>
+                <td>
+                    <?php echo $failureCount ?>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+            <tr>
+                <td colspan="2">Данные по статусам</td>
+            </tr>
+            <tr>
+                <td>
+                    Статус
+                </td>
+                <td>
+                    Количество запросов
+                </td>
+            </tr>
+            <?php foreach($arRowsStatuses as $arRow):?>
+                <tr>
+                    <td>
+                        <?php echo $arRow['status'] ?>
+                    </td>
+                    <td>
+                        <?php echo $arRow['count'] ?>
+                    </td>
+                </tr>
+            <?endforeach;?>
+        </table>
+        <br>
+<?php break;
+case 'list_select':?>
         <?php closeForNonAdmin();?>
         <?php
         $arRows = [];
@@ -221,9 +222,9 @@ else {
             <label for="client">Клиент:</label>
             <select id="client" name="client" >
                 <?php foreach($arClients as $arClient):?>
-                <option value="<?php echo $arClient['address'];?>" <?php if($client == $arClient['address']) echo 'selected';?> >
-                    <?php echo $arClient['address'];?>
-                </option>
+                    <option value="<?php echo $arClient['address'];?>" <?php if($client == $arClient['address']) echo 'selected';?> >
+                        <?php echo $arClient['address'];?>
+                    </option>
                 <?php endforeach;?>
             </select>
             <br>
@@ -351,8 +352,9 @@ else {
         </table>
         <br>
 
-<?php case 'auth':?>
-    <?php
+<?php break;
+case 'auth':?>
+        <?php
         $showForm = false;
         $note = false;
         if(empty($_POST['address']) || empty($_POST['passwd']))
@@ -409,15 +411,16 @@ else {
             <br>
             <input type="submit">
         </form>
-        <?endif;?>
+    <?endif;?>
         <p><?php echo $note;?></p>
-        <?php if(!empty($_SESSION['user_id'])):?>
-            <script>window.location.replace("/sqt.php");</script>
-        <?endif;?>
+    <?php if(!empty($_SESSION['user_id'])):?>
+        <script>window.location.replace("/sqt.php");</script>
+    <?endif;?>
 
-<?php case 'all':?>
-    <?php closeForNonAdmin();?>
-    <?php
+<?php break;
+case 'all':?>
+        <?php closeForNonAdmin();?>
+        <?php
         $client = urldecode($_REQUEST['filter_client']);
 
         $link = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE);
@@ -440,20 +443,20 @@ else {
         }
 
 
-    ?>
-    <form method="get">
-        <input type="hidden" name="mode" value="all">
-        <label for="filter_client">Фильтрация по клиенту:</label>
-        <select id="filter_client" name="filter_client" >
-            <?php foreach($arClients as $arClient):?>
-                <option value="<?php echo $arClient['address'];?>" <?php if($client == $arClient['address']) echo 'selected';?> >
-                    <?php echo $arClient['address'];?>
-                </option>
-            <?php endforeach;?>
-        </select>
-        <input type="submit">
-    </form>
-    <?php
+        ?>
+        <form method="get">
+            <input type="hidden" name="mode" value="all">
+            <label for="filter_client">Фильтрация по клиенту:</label>
+            <select id="filter_client" name="filter_client" >
+                <?php foreach($arClients as $arClient):?>
+                    <option value="<?php echo $arClient['address'];?>" <?php if($client == $arClient['address']) echo 'selected';?> >
+                        <?php echo $arClient['address'];?>
+                    </option>
+                <?php endforeach;?>
+            </select>
+            <input type="submit">
+        </form>
+        <?php
         $arRows = [];
 
         $query = 'SELECT * FROM ' . DB_EVENTS_TABLE . ' ';
@@ -499,56 +502,57 @@ else {
         }
         mysqli_close($link);
         ?>
-    <div id="wrap">
-        <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
-            <thead >
-            <tr style="display:block;">
-                <td style="width:4%">ID записи</td>
-                <td style="width:9%">Клиент</td>
-                <td style="width:5%">Выполнен ли</td>
-                <td style="width:4%">ID статуса</td>
-                <td style="width:8%">Статус</td>
-                <td style="width:6%">Запрос</td>
-                <td style="width:10%">Ответ</td>
-                <td style="width:10%">Ответ (локальное хранилище)</td>
-                <td style="width:4%">Ответы совпали</td>
-                <td style="width:6%">Начало исполнения</td>
-                <td style="width:6%">Конец исполнения</td>
-                <td style="width:6%">Затрачено на запрос, мс</td>
-                <td style="width:6%">Затрачено на запрос + очередь, мс</td>
-                <td style="width:6%">Мин. время нахождения в очереди, мс</td>
-                <td style="width:5%">Размер очереди (вместе с данным запросом)</td>
-                <td style="width:5%">Команда</td>
-            </tr>
-            </thead>
-            <tbody style="display:block;overflow:auto;height:75vh;width:100%;">
-            <?php foreach($arRows as $arRow):?>
-            <tr>
-                <td style="width:4%"><?php echo $arRow['ID']; ?></td>
-                <td style="width:9%"><?php echo $arRow['Client']; ?></td>
-                <td style="width:5%"><?php echo $arRow['IsExecuted']; ?></td>
-                <td style="width:4%"><?php echo $arRow['Status']; ?></td>
-                <td style="width:8%"><?php echo $arRow['StatusText']; ?></td>
-                <td style="width:6%"><?php echo $arRow['RequestedKey']; ?></td>
-                <td style="width:10%"><?php echo $arRow['Data']; ?></td>
-                <td style="width:10%"><?php echo $arRow['LocalData']; ?></td>
-                <td style="width:4%"><?php echo $arRow['ValueIsValidated']; ?></td>
-                <td style="width:6%"><?php echo $arRow['TimeStart']; ?></td>
-                <td style="width:6%"><?php echo $arRow['TimeEnd']; ?></td>
-                <td style="width:6%"><?php echo $arRow['TimeElapsed']; ?></td>
-                <td style="width:6%"><?php echo $arRow['TimeElapsedTotal']; ?></td>
-                <td style="width:6%"><?php echo $arRow['TimeQueuedMin']; ?></td>
-                <td style="width:5%"><?php echo $arRow['QueueSize']; ?></td>
-                <td style="width:5%"><?php echo $arRow['Command']; ?></td>
-            </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+        <div id="wrap">
+            <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+                <thead >
+                <tr style="display:block;">
+                    <td style="width:4%">ID записи</td>
+                    <td style="width:9%">Клиент</td>
+                    <td style="width:5%">Выполнен ли</td>
+                    <td style="width:4%">ID статуса</td>
+                    <td style="width:8%">Статус</td>
+                    <td style="width:6%">Запрос</td>
+                    <td style="width:10%">Ответ</td>
+                    <td style="width:10%">Ответ (локальное хранилище)</td>
+                    <td style="width:4%">Ответы совпали</td>
+                    <td style="width:6%">Начало исполнения</td>
+                    <td style="width:6%">Конец исполнения</td>
+                    <td style="width:6%">Затрачено на запрос, мс</td>
+                    <td style="width:6%">Затрачено на запрос + очередь, мс</td>
+                    <td style="width:6%">Мин. время нахождения в очереди, мс</td>
+                    <td style="width:5%">Размер очереди (вместе с данным запросом)</td>
+                    <td style="width:5%">Команда</td>
+                </tr>
+                </thead>
+                <tbody style="display:block;overflow:auto;height:75vh;width:100%;">
+                <?php foreach($arRows as $arRow):?>
+                    <tr>
+                        <td style="width:4%"><?php echo $arRow['ID']; ?></td>
+                        <td style="width:9%"><?php echo $arRow['Client']; ?></td>
+                        <td style="width:5%"><?php echo $arRow['IsExecuted']; ?></td>
+                        <td style="width:4%"><?php echo $arRow['Status']; ?></td>
+                        <td style="width:8%"><?php echo $arRow['StatusText']; ?></td>
+                        <td style="width:6%"><?php echo $arRow['RequestedKey']; ?></td>
+                        <td style="width:10%"><?php echo $arRow['Data']; ?></td>
+                        <td style="width:10%"><?php echo $arRow['LocalData']; ?></td>
+                        <td style="width:4%"><?php echo $arRow['ValueIsValidated']; ?></td>
+                        <td style="width:6%"><?php echo $arRow['TimeStart']; ?></td>
+                        <td style="width:6%"><?php echo $arRow['TimeEnd']; ?></td>
+                        <td style="width:6%"><?php echo $arRow['TimeElapsed']; ?></td>
+                        <td style="width:6%"><?php echo $arRow['TimeElapsedTotal']; ?></td>
+                        <td style="width:6%"><?php echo $arRow['TimeQueuedMin']; ?></td>
+                        <td style="width:5%"><?php echo $arRow['QueueSize']; ?></td>
+                        <td style="width:5%"><?php echo $arRow['Command']; ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
 
-<?php case 'clients':?>
+<?php break;
+case 'clients':?>
         <?php closeForNonAdmin();?>
-    <?php
+        <?php
         $arRows = [];
 
         $link = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE);
@@ -570,24 +574,25 @@ else {
             mysqli_free_result($result);
         }
         mysqli_close($link);
-    ?>
-    <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
-        <tr>
-            <td>ID</td>
-            <td>Адрес</td>
-            <td>Примечание</td>
-        </tr>
-        <?php foreach($arRows as $arRow):?>
-        <tr>
-            <td><?php echo $arRow['ID']?></td>
-            <td><?php echo $arRow['address']?></td>
-            <td><?php echo $arRow['note']?></td>
-        </tr>
-        <?php endforeach;?>
-    </table>
+        ?>
+        <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+            <tr>
+                <td>ID</td>
+                <td>Адрес</td>
+                <td>Примечание</td>
+            </tr>
+            <?php foreach($arRows as $arRow):?>
+                <tr>
+                    <td><?php echo $arRow['ID']?></td>
+                    <td><?php echo $arRow['address']?></td>
+                    <td><?php echo $arRow['note']?></td>
+                </tr>
+            <?php endforeach;?>
+        </table>
 
-<?php case 'client_add':?>
-        <?php if(empty($_POST['address']) || empty($_POST['note'])):?>
+<?php break;
+case 'client_add':?>
+    <?php if(empty($_POST['address']) || empty($_POST['note'])):?>
         <form method="post">
             <input type="hidden" name="mode" value="client_add">
             <label for="address">Адрес сервера:</label>
@@ -601,35 +606,35 @@ else {
             <br>
             <input type="submit">
         </form>
-        <?php else: 
-            $address = urldecode($_POST['address']);
-            $note = urldecode($_POST['note']);
-            $password = utf8_decode(urldecode($_POST['passwd']));
+    <?php else:
+    $address = urldecode($_POST['address']);
+    $note = urldecode($_POST['note']);
+    $password = utf8_decode(urldecode($_POST['passwd']));
 
-            $passwordForDb = md5(MD5_SALT_TEXT . $password . $address);
+    $passwordForDb = md5(MD5_SALT_TEXT . $password . $address);
 
-            $link = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE);
+    $link = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE);
 
-            if (!$link) {
-                die("Невозможно подключиться к базе данных. Код ошибки: %s\n" . mysqli_connect_error());
-            }
+    if (!$link) {
+        die("Невозможно подключиться к базе данных. Код ошибки: %s\n" . mysqli_connect_error());
+    }
 
-            $query = "INSERT INTO " . DB_USERS_TABLE . " (address, note, password) VALUES (?, ?, ?);";
+    $query = "INSERT INTO " . DB_USERS_TABLE . " (address, note, password) VALUES (?, ?, ?);";
 
-            $stmt = mysqli_prepare($link, $query);
-            mysqli_stmt_bind_param($stmt, "sss", $address, $note, $password);
+    $stmt = mysqli_prepare($link, $query);
+    mysqli_stmt_bind_param($stmt, "sss", $address, $note, $password);
 
 
 
-            if ($res = mysqli_stmt_execute($stmt)):?>
-                <p>Данные успешно сохранены!</p>
-            <?php else:?>
-                <p>Ошибка при сохранении: <?php echo mysqli_error($link) ?>
-            <?php endif;
-            mysqli_close($link);
+    if ($res = mysqli_stmt_execute($stmt)):?>
+        <p>Данные успешно сохранены!</p>
+    <?php else:?>
+    <p>Ошибка при сохранении: <?php echo mysqli_error($link) ?>
+        <?php endif;
+        mysqli_close($link);
         ?>
         <?php endif;?>
-<?php }?>
+        <?php }?>
     </body>
     </html>
 
