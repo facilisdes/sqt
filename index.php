@@ -1,5 +1,5 @@
 <?php
-const DB_HOST = '127.0.0.1:3307';      /* Хост, к которому мы подключаемся */
+const DB_HOST = 'mysql:3306';      /* Хост, к которому мы подключаемся */
 const DB_USER = 'sqt_admin_1234';           /* Имя пользователя */
 const DB_PASSWORD = 'P@ssw0rd-12POss@*';   /* Используемый пароль */
 const DB_DATABASE = 'sqt';      /* База данных для запросов по умолчанию */
@@ -422,6 +422,7 @@ case 'all':?>
         <?php closeForNonAdmin();?>
         <?php
         $client = urldecode($_REQUEST['filter_client']);
+        if(empty($client)) $client = 'all';
 
         $link = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE);
 
@@ -432,7 +433,6 @@ case 'all':?>
         $query = 'SELECT * FROM ' . DB_USERS_TABLE . ";";
         if ($result = mysqli_query($link, $query)) {
             while( $row = mysqli_fetch_assoc($result) ){
-                if(empty($client)) $client = $row['address'];
                 $arClients[] = [
                     'ID' => $row['id'],
                     'address' => $row['address'],
@@ -448,6 +448,9 @@ case 'all':?>
             <input type="hidden" name="mode" value="all">
             <label for="filter_client">Фильтрация по клиенту:</label>
             <select id="filter_client" name="filter_client" >
+                <option value="<?php echo $arClient['address'];?>" <?php if($client == 'all') echo 'selected';?> >
+                    Все клиенты
+                </option>
                 <?php foreach($arClients as $arClient):?>
                     <option value="<?php echo $arClient['address'];?>" <?php if($client == $arClient['address']) echo 'selected';?> >
                         <?php echo $arClient['address'];?>
@@ -461,7 +464,7 @@ case 'all':?>
 
         $query = 'SELECT * FROM ' . DB_EVENTS_TABLE . ' ';
         $where = false;
-        if(!empty($client)) {
+        if(!empty($client) && $client != 'all') {
             $where = "%" . $client . "%";
             $query .= "WHERE Client LIKE ? "; //
         }

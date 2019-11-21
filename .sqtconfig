@@ -1,11 +1,11 @@
 sqt_port=13343
 db_host=127.0.0.1
 db_port=3307
-db_login=root
-db_password=root
-db_name=test
+db_login=sqt_admin_1234
+db_password=P@ssw0rd-12POss@*
+db_name=sqt_test
 db_table=test
 cache_host=127.0.0.1
 cache_port=6380
-db_key_column_name=a
-db_value_column_name=b
+db_key_column_name=ID
+db_value_column_name=val
