@@ -24,37 +24,94 @@ else {
     if($_REQUEST['mode'] == 'logout') {
         unset($_SESSION['user_id']);
         unset($_SESSION['user_client']);
-        header("Location: /sqt.php");
+        header("Location: /");
         die();
     }
+    $arModsLabels = [
+            'auth' => 'Авторизация',
+            'client_add' => 'Регистрация клиента',
+            'list_select' => 'Общая статистика',
+            'all' => 'Все запросы',
+            'clients' => 'Список клиентов',
+            'list' => 'Статистика',
+            'logout' => 'Выход',
+    ];
+
     ?>
+    <!DOCTYPE html>
     <html>
     <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Dashboard</title>
+        <link rel="stylesheet" href="/assets/css/bulma.min.css">
+        <link rel="stylesheet" href="/assets/css/style.css">
+        <script src="/assets/js/script.js"></script>
     </head>
     <body>
-    <table>
-        <tr>
-            <?php if(empty($_SESSION['user_client'])):?>
-                <td><a href="?mode=auth" <?php if($_REQUEST['mode'] == 'auth') echo 'style="font-weight: 900;"' ?> >Авторизация</a></td>
-                <td><a href="?mode=client_add" <?php if($_REQUEST['mode'] == 'client_add') echo 'style="font-weight: 900;"' ?> >Добавление клиента</a></td>
-            <?php elseif($_SESSION['user_client'] == 'admin'):?>
-                <td><a href="?mode=list_select" <?php if($_REQUEST['mode'] == 'list_select') echo 'style="font-weight: 900;"' ?> >Общая статистика</a></td>
-                <td><a href="?mode=all" <?php if($_REQUEST['mode'] == 'all') echo 'style="font-weight: 900;"' ?> >Все запросы</a></td>
-                <td><a href="?mode=clients" <?php if($_REQUEST['mode'] == 'clients') echo 'style="font-weight: 900;"' ?> >Клиенты</a></td>
-                <td><a href="?mode=client_add" <?php if($_REQUEST['mode'] == 'client_add') echo 'style="font-weight: 900;"' ?> >Добавление клиента</a></td>
-                <td><a href="?mode=logout" <?php if($_REQUEST['mode'] == 'logout') echo 'style="font-weight: 900;"' ?> >Выход</a></td>
-            <?php else:?>
-                <td><a href="?mode=list" <?php if($_REQUEST['mode'] == 'list') echo 'style="font-weight: 900;"' ?> >Статистика</a></td>
-                <td><a href="?mode=logout" <?php if($_REQUEST['mode'] == 'logout') echo 'style="font-weight: 900;"' ?> >Выход</a></td>
-            <?php endif;?>
+    <section class="section">
+        <div class="container">
+            <nav class="navbar" role="navigation" aria-label="main navigation">
+                <div class="navbar-brand">
+                    <div class="navbar-item is-hidden-tablet">
+                        <strong><?php echo $arModsLabels[$_REQUEST['mode']]; ?></strong>
+                    </div>
+                    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar">
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                    </a>
+                </div>
+                <div class="navbar-menu" id="navbar">
+                    <div class="navbar-start">
+                        <?php if(empty($_SESSION['user_client'])):?>
 
+                            <a class="navbar-item <?php if($_REQUEST['mode'] == 'auth') echo 'navbar-item--selected' ?>" href="?mode=auth">
+                                <?php echo $arModsLabels['auth'] ?>
+                            </a>
+                            <a class="navbar-item <?php if($_REQUEST['mode'] == 'client_add') echo 'navbar-item--selected' ?>" href="?mode=client_add">
+                                <?php echo $arModsLabels['client_add'] ?>
+                            </a>
+                        <?php elseif($_SESSION['user_client'] == 'admin'):?>
+                            <a class="navbar-item <?php if($_REQUEST['mode'] == 'list_select') echo 'navbar-item--selected' ?>" href="?mode=list_select">
+                                <?php echo $arModsLabels['list_select'] ?>
+                            </a>
+                            <a class="navbar-item <?php if($_REQUEST['mode'] == 'all') echo 'navbar-item--selected' ?>" href="?mode=all">
+                                <?php echo $arModsLabels['all'] ?>
+                            </a>
+                            <a class="navbar-item <?php if($_REQUEST['mode'] == 'clients') echo 'navbar-item--selected' ?>" href="?mode=clients">
+                                <?php echo $arModsLabels['clients'] ?>
+                            </a>
+                            <a class="navbar-item <?php if($_REQUEST['mode'] == 'client_add') echo 'navbar-item--selected' ?>" href="?mode=client_add">
+                                <?php echo $arModsLabels['client_add'] ?>
+                            </a>
+                        <?php else:?>
+                            <a class="navbar-item <?php if($_REQUEST['mode'] == 'list') echo 'navbar-item--selected' ?>" href="?mode=list">
+                                <?php echo $arModsLabels['list'] ?>
+                            </a>
+                        <?php endif;?>
+                    </div>
 
-            <td><?php echo $_SESSION['user_client']; ?></td>
-        </tr>
-    </table>
+                    <div class="navbar-end">
+                        <?if($_SESSION['user_client']):?>
+                        <div class="navbar-item">
+                                <strong><?php echo $_SESSION['user_client']; ?></strong>
+                        </div>
+                        <a class="navbar-item <?php if($_REQUEST['mode'] == 'logout') echo 'navbar-item--selected' ?>" href="?mode=logout">
+                            <?php echo $arModsLabels['logout'] ?>
+                        </a>
+                        <?endif;?>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
     <?php switch($_REQUEST['mode']) {?>
 <?php case 'list':?>
+
         <?php
         $arRows = [];
         $arRowsStatuses = [];
@@ -116,76 +173,101 @@ else {
             mysqli_close($link);
         }
         ?>
-        <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
-            <tr>
-                <td colspan="2">Данные по успешным запросам</td>
-            </tr>
-            <tr>
-                <td>
-                    Среднее время запросов без учёта очереди, мс
-                </td>
-                <td>
-                    Среднее время запросов с очередью, мс
-                </td>
-            </tr>
-            <?php foreach($arRows as $arRow):?>
-                <tr>
-                    <td>
-                        <?php echo $arRow['te'] ?>
-                    </td>
-                    <td>
-                        <?php echo $arRow['tet'] ?>
-                    </td>
-                </tr>
-            <?endforeach;?>
-        </table>
-        <br>
-        <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
-            <tr>
-                <td colspan="2">Данные по результативности запросов</td>
-            </tr>
-            <tr>
-                <td>
-                    Успешно
-                </td>
-                <td>
-                    Неудачно
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <?php echo $successCount ?>
-                </td>
-                <td>
-                    <?php echo $failureCount ?>
-                </td>
-            </tr>
-        </table>
-        <br>
-        <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
-            <tr>
-                <td colspan="2">Данные по статусам</td>
-            </tr>
-            <tr>
-                <td>
-                    Статус
-                </td>
-                <td>
-                    Количество запросов
-                </td>
-            </tr>
-            <?php foreach($arRowsStatuses as $arRow):?>
-                <tr>
-                    <td>
-                        <?php echo $arRow['status'] ?>
-                    </td>
-                    <td>
-                        <?php echo $arRow['count'] ?>
-                    </td>
-                </tr>
-            <?endforeach;?>
-        </table>
-        <br>
+            <div class="columns">
+                <div class="column">
+                    <table class="table is-hoverable is-fullwidth is-bordered is-striped" border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+                        <tr>
+                            <td colspan="2">Данные по успешным запросам</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Среднее время запросов без учёта очереди, мс
+                            </td>
+                            <td>
+                                Среднее время запросов с очередью, мс
+                            </td>
+                        </tr>
+                        <?php if(count($arRows) == 0): ?>
+                            <tr>
+                                <td>
+                                    -
+                                </td>
+                                <td>
+                                    -
+                                </td>
+                            </tr>
+                        <?php endif;?>
+                        <?php foreach($arRows as $arRow):?>
+                            <tr>
+                                <td>
+                                    <?php echo $arRow['te'] ?>
+                                </td>
+                                <td>
+                                    <?php echo $arRow['tet'] ?>
+                                </td>
+                            </tr>
+                        <?endforeach;?>
+                    </table>
+                </div>
+                <div class="column">
+                    <table class="table is-hoverable is-fullwidth is-bordered is-striped" border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+                        <tr>
+                            <td colspan="2">Данные по результативности запросов</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Успешно
+                            </td>
+                            <td>
+                                Неудачно
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <?php echo $successCount ?>
+                            </td>
+                            <td>
+                                <?php echo $failureCount ?>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="column">
+                    <table class="table is-hoverable is-fullwidth is-bordered is-striped" border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+                        <tr>
+                            <td colspan="2">Данные по статусам</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Статус
+                            </td>
+                            <td>
+                                Количество запросов
+                            </td>
+                        </tr>
+                        <?php if(count($arRowsStatuses) == 0): ?>
+                            <tr>
+                                <td>
+                                    -
+                                </td>
+                                <td>
+                                    -
+                                </td>
+                            </tr>
+                        <?php endif;?>
+                        <?php foreach($arRowsStatuses as $arRow):?>
+                            <tr>
+                                <td>
+                                    <?php echo $arRow['status'] ?>
+                                </td>
+                                <td>
+                                    <?php echo $arRow['count'] ?>
+                                </td>
+                            </tr>
+                        <?endforeach;?>
+                    </table>
+                </div>
+            </div>
 <?php break;
 case 'list_select':?>
         <?php closeForNonAdmin();?>
@@ -218,18 +300,21 @@ case 'list_select':?>
             mysqli_free_result($result);
         }?>
         <form method="post">
-            <input type="hidden" name="mode" value="list_select">
-            <label for="client">Клиент:</label>
-            <select id="client" name="client" >
-                <?php foreach($arClients as $arClient):?>
-                    <option value="<?php echo $arClient['address'];?>" <?php if($client == $arClient['address']) echo 'selected';?> >
-                        <?php echo $arClient['address'];?>
-                    </option>
-                <?php endforeach;?>
-            </select>
-            <br>
-            <input type="submit">
+            <div class="control">
+                <label for="client">Фильтрация по клиенту:</label>
+                <div class="select" >
+                    <select id="client" name="client" >
+                        <?php foreach($arClients as $arClient):?>
+                            <option value="<?php echo $arClient['address'];?>" <?php if($client == $arClient['address']) echo 'selected';?> >
+                                <?php echo $arClient['address'];?>
+                            </option>
+                        <?php endforeach;?>
+                    </select>
+                </div>
+                <button class="button is-primary submit">Фильтровать</button>
+            </div>
         </form>
+<br>
 
         <?php
         if(!empty($client)) {
@@ -281,7 +366,9 @@ case 'list_select':?>
             mysqli_close($link);
         }
         ?>
-        <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+            <div class="columns">
+                <div class="column">
+        <table class="table is-hoverable is-fullwidth is-bordered is-striped" border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
             <tr>
                 <td colspan="2">Данные по успешным запросам</td>
             </tr>
@@ -293,6 +380,16 @@ case 'list_select':?>
                     Среднее время запросов с очередью, мс
                 </td>
             </tr>
+            <?php if(count($arRows) == 0): ?>
+                <tr>
+                    <td>
+                        -
+                    </td>
+                    <td>
+                        -
+                    </td>
+                </tr>
+            <?php endif;?>
             <?php foreach($arRows as $arRow):?>
                 <tr>
                     <td>
@@ -304,8 +401,9 @@ case 'list_select':?>
                 </tr>
             <?endforeach;?>
         </table>
-        <br>
-        <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+                </div>
+                <div class="column">
+                    <table class="table is-hoverable is-fullwidth is-bordered is-striped" border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
             <tr>
                 <td colspan="2">Данные по результативности запросов</td>
             </tr>
@@ -326,8 +424,9 @@ case 'list_select':?>
                 </td>
             </tr>
         </table>
-        <br>
-        <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+                </div>
+                <div class="column">
+                    <table class="table is-hoverable is-fullwidth is-bordered is-striped" border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
             <tr>
                 <td colspan="2">Данные по статусам</td>
             </tr>
@@ -339,6 +438,16 @@ case 'list_select':?>
                     Количество запросов
                 </td>
             </tr>
+            <?php if(count($arRowsStatuses) == 0): ?>
+                <tr>
+                    <td>
+                        -
+                    </td>
+                    <td>
+                        -
+                    </td>
+                </tr>
+            <?php endif;?>
             <?php foreach($arRowsStatuses as $arRow):?>
                 <tr>
                     <td>
@@ -350,7 +459,8 @@ case 'list_select':?>
                 </tr>
             <?endforeach;?>
         </table>
-        <br>
+                </div>
+            </div>
 
 <?php break;
 case 'auth':?>
@@ -401,20 +511,33 @@ case 'auth':?>
         }
         ?>
         <?php if($showForm):?>
+
         <form method="post">
-            <input type="hidden" name="mode" value="auth">
-            <label for="address">Адрес сервера:</label>
-            <input type="text" id="address" name="address" placeholder="127.0.0.1" value="<?=$_POST['address']?>">
-            <br>
-            <label for="address">Пароль:</label>
-            <input type="password" id="passwd" name="passwd" value="<?=$_POST['passwd']?>">
-            <br>
-            <input type="submit">
+            <div class="columns">
+                <div class="column is-one-quarter">
+                    <input type="hidden" name="mode" value="auth">
+                    <div class="field">
+                        <label class="label">Адрес сервера</label>
+                        <div class="control">
+                            <input class="input" type="text" id="address" name="address"  placeholder="127.0.0.1:13343" value="<?=$_POST['address']?>">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Пароль</label>
+                        <div class="control">
+                            <input class="input" id="passwd" name="passwd" type="password" value="<?=$_POST['passwd']?>">
+                        </div>
+                    </div>
+                    <div class="control">
+                        <button class="button is-primary submit">Отправить</button>
+                    </div>
+                </div>
+            </div>
         </form>
     <?endif;?>
         <p><?php echo $note;?></p>
     <?php if(!empty($_SESSION['user_id'])):?>
-        <script>window.location.replace("/sqt.php");</script>
+        <script>window.location.replace("/");</script>
     <?endif;?>
 
 <?php break;
@@ -446,18 +569,22 @@ case 'all':?>
         ?>
         <form method="get">
             <input type="hidden" name="mode" value="all">
-            <label for="filter_client">Фильтрация по клиенту:</label>
-            <select id="filter_client" name="filter_client" >
-                <option value="<?php echo $arClient['address'];?>" <?php if($client == 'all') echo 'selected';?> >
-                    Все клиенты
-                </option>
-                <?php foreach($arClients as $arClient):?>
-                    <option value="<?php echo $arClient['address'];?>" <?php if($client == $arClient['address']) echo 'selected';?> >
-                        <?php echo $arClient['address'];?>
-                    </option>
-                <?php endforeach;?>
-            </select>
-            <input type="submit">
+            <div class="control">
+                <label for="filter_client">Фильтрация по клиенту:</label>
+                <div class="select" >
+                    <select id="filter_client" name="filter_client" >
+                        <option value="<?php echo $arClient['address'];?>" <?php if($client == 'all') echo 'selected';?> >
+                            Все клиенты
+                        </option>
+                        <?php foreach($arClients as $arClient):?>
+                            <option value="<?php echo $arClient['address'];?>" <?php if($client == $arClient['address']) echo 'selected';?> >
+                                <?php echo $arClient['address'];?>
+                            </option>
+                        <?php endforeach;?>
+                    </select>
+                </div>
+                <button class="button is-primary submit">Фильтровать</button>
+            </div>
         </form>
         <?php
         $arRows = [];
@@ -505,8 +632,10 @@ case 'all':?>
         }
         mysqli_close($link);
         ?>
+        </div>
+    </section>
         <div id="wrap">
-            <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+            <table class="table is-centered is-narrow is-hoverable is-fullwidth is-bordered is-striped" border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
                 <thead >
                 <tr style="display:block;">
                     <td style="width:4%">ID записи</td>
@@ -552,6 +681,9 @@ case 'all':?>
             </table>
         </div>
 
+    <section class="section">
+        <div class="container">
+
 <?php break;
 case 'clients':?>
         <?php closeForNonAdmin();?>
@@ -578,7 +710,7 @@ case 'clients':?>
         }
         mysqli_close($link);
         ?>
-        <table border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
+        <table class="table is-centered is-hoverable is-fullwidth is-bordered is-striped" border="1" cellpadding="1" cellspacing="1" style="table-layout: fixed;">
             <tr>
                 <td>ID</td>
                 <td>Адрес</td>
@@ -597,17 +729,35 @@ case 'clients':?>
 case 'client_add':?>
     <?php if(empty($_POST['address']) || empty($_POST['note'])):?>
         <form method="post">
-            <input type="hidden" name="mode" value="client_add">
-            <label for="address">Адрес сервера:</label>
-            <input type="text" id="address" name="address" placeholder="127.0.0.1" value="<?=$_POST['address']?>">
-            <br>
-            <label for="address">Описание:</label>
-            <input type="text" id="note" name="note" value="<?=$_POST['note']?>">
-            <br>
-            <label for="address">Пароль для входа:</label>
-            <input type="password" id="passwd" name="passwd" value="<?=$_POST['passwd']?>">
-            <br>
-            <input type="submit">
+
+            <div class="columns">
+                <div class="column is-one-quarter">
+                    <input type="hidden" name="mode" value="client_add">
+
+                    <div class="field">
+                        <label class="label">Адрес сервера</label>
+                        <div class="control">
+                            <input class="input" type="text" id="address" name="address" placeholder="127.0.0.1:13343" value="<?=$_POST['address']?>">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Описание</label>
+                        <div class="control">
+                            <input class="input" type="text" id="note" name="note" value="<?=$_POST['note']?>">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Пароль для входа</label>
+                        <div class="control">
+                            <input class="input" type="password" id="passwd" name="passwd" value="<?=$_POST['passwd']?>">
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <button class="button is-primary submit">Добавить пользователя</button>
+                    </div>
+                </div>
+            </div>
         </form>
     <?php else:
     $address = urldecode($_POST['address']);
@@ -638,6 +788,9 @@ case 'client_add':?>
         ?>
         <?php endif;?>
         <?php }?>
+
+        </div>
+    </section>
     </body>
     </html>
 

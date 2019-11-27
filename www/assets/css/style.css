@@ -1,0 +1,6 @@
+.navbar-item--selected {
+    font-weight: 900;
+}
+.table.is-centered {
+    margin: 0 auto;
+}
