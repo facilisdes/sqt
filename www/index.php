@@ -301,7 +301,7 @@ case 'list_select':?>
         }?>
         <form method="post">
             <div class="control">
-                <label for="client">Фильтрация по клиенту:</label>
+                <label class="label" for="client">Фильтрация по клиенту:</label>
                 <div class="select" >
                     <select id="client" name="client" >
                         <?php foreach($arClients as $arClient):?>
@@ -570,7 +570,7 @@ case 'all':?>
         <form method="get">
             <input type="hidden" name="mode" value="all">
             <div class="control">
-                <label for="filter_client">Фильтрация по клиенту:</label>
+                <label class="label" for="filter_client">Фильтрация по клиенту:</label>
                 <div class="select" >
                     <select id="filter_client" name="filter_client" >
                         <option value="<?php echo $arClient['address'];?>" <?php if($client == 'all') echo 'selected';?> >
